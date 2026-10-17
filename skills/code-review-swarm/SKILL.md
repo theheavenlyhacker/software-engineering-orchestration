@@ -47,7 +47,7 @@ Deduplicate overlapping findings across lenses into one thread, then classify:
 
 **Standalone (human present):** present AMBIGUOUS items and ask for a decision on each. Offer for ACTIONABLE: (A) inline suggestion comments on the PR (default) or (B) check out the branch, commit the fixes, push.
 
-**Orchestrated (you are a dispatched worker, e.g. issue-orchestration reviewer):** no human. Do not edit code, commit, or push. Put AMBIGUOUS items in the report and use the Orca `ask` command only if one blocks the verdict. Skip step 8.
+**Orchestrated (you are a dispatched worker, e.g. issue-orchestration reviewer):** no human. Do not edit code, commit, or push. Put AMBIGUOUS items in the report and use the Orca `ask` command only if one blocks the verdict. In step 8 post only the summary as `gh pr comment <n> --body-file <file>` (no formal `gh pr review`, no inline comments, no `--add-reviewer`); the coordinator owns the verdict and merge.
 
 ## 7. Verdict and report
 

@@ -21,39 +21,46 @@ Workers do not see this skill directory: **inline the role file text into every 
 | Role | Default agent | Verdicts |
 |---|---|---|
 | implementer | codex | `IMPLEMENTATION_COMPLETE` |
-| reviewer | claude | `APPROVED` / `CHANGES_REQUESTED` |
+| pr-opener (merger role, open phase) | codex | PR URL |
+| reviewer (`code-review-swarm`, runs on the open PR) | claude | `APPROVED` / `CHANGES_REQUESTED` |
+| code-fixer | codex | `FIXES_COMPLETE` / `ESCALATE` |
+| merger (merge phase) | codex | merged |
 | issue-analyzer (optional) | claude | `READY_FOR_IMPLEMENTATION` / `BLOCKED` |
 | ci-fixer (optional) | codex | `CI_FIX_COMPLETE` / `ESCALATE` |
 | conflict-resolver (optional) | codex | `RESOLVED` / `ESCALATE` |
-| merger | codex | PR URL, merged |
 
-Reviewer agent MUST differ from the implementer's agent. Implementer never approves or merges.
-Start with MVP: implementer, reviewer, merger. Add optional roles only when the user asks or the failure mode appears.
-Agents are defaults; honor user overrides. Supported `--agent` values: `codex`, `claude`, `opencode` (or any other agent Orca can launch). Use `opencode` for any role the user assigns it, e.g. a cheaper implementer or a third-party reviewer; the implementer/reviewer difference rule still applies.
+Reviewer agent MUST differ from the implementer's and code-fixer's agent. Implementer and code-fixer never approve or merge. Only the merger merges, and only after the coordinator confirms all gates.
+Start with MVP: implementer, merger, reviewer, code-fixer. Add optional roles only when the user asks or the failure mode appears.
+Agents are defaults; honor user overrides. Supported `--agent` values: `codex`, `claude`, `opencode` (or any other agent Orca can launch). Use `opencode` for any role the user assigns it; the reviewer-differs rule still applies.
 
 ## Loop
 
 ```text
 run-create once. Then per issue:
-select -> label agent-in-progress -> [analyze] -> implement -> review
-  CHANGES_REQUESTED -> implement fixes -> review   (max 3 cycles)
-  APPROVED -> label agent-review -> create PR ("Closes #N", merger role)
-  CI fail -> ci-fixer -> review again -> CI           (max 2)
-  conflict -> conflict-resolver -> review -> CI       (max 2)
-  all gates green -> gh pr merge --squash --delete-branch
-  verify `gh issue view N --json state` == CLOSED -> label agent-completed
+select -> label agent-in-progress -> [analyze] -> implement (local checks green)
+  -> OPEN PR first (pr-opener; "Closes #N"; label agent-review)
+  -> code-review-swarm on the open PR (reviewer)
+       APPROVED          -> wait CI
+       CHANGES_REQUESTED -> code-fixer (findings in spec) pushes to PR branch
+                            -> code-review-swarm again          (max 3 cycles)
+  CI green + APPROVED on current head + no conflicts -> merger merges (squash, delete branch)
+  CI red   -> ci-fixer -> swarm review again -> CI              (max 2)
+  conflict -> conflict-resolver -> swarm review -> CI           (max 2)
+verify `gh issue view N --json state` == CLOSED -> label agent-completed
 next issue; stop when none eligible.
 ```
 
 - Select: `gh issue list --state open --label agent-ready --json number,title,body,labels,url`, lowest number first. One issue at a time (no parallel unless user asks).
-- Worktree per issue, branch `agent/issue-<N>-<slug>`. Implementer, fixer, and resolver share it; reviewer reads it.
+- Worktree per issue, branch `agent/issue-<N>-<slug>`. Implementer, code-fixer, ci-fixer, and resolver share it; reviewer reads it.
+- Review happens on the PR, never before it exists. Pass the reviewer the PR number so it diffs with `gh pr diff`.
 - Dispatch with `worker-start --spec ... --worktree ... --agent ...`; wait with `check --wait --types worker_done,escalation,question`. Parse the verdict token from the worker_done summary. No verdict or unknown token counts as failed attempt.
-- Any fix that changes the diff (CI fix, conflict resolution) goes back to the reviewer. Never merge on a stale approval.
+- The merge gate is the latest review verdict on the PR's current head SHA (`gh pr view N --json headRefOid`). Any push (fix, CI fix, conflict resolution) invalidates earlier approval; re-run the swarm. Never merge on a stale approval.
+- The reviewer posts its swarm summary as a PR comment. The coordinator holds the verdict and routes; do not trust a verdict that is not in the worker_done summary.
 - Release each settled worker per the orchestration skill's completion accounting.
 
 ## Limits
 
-Review cycles 3, implementation attempts 3, CI fixes 2, conflict attempts 2, analysis 2. Exceeded: label `agent-needs-human`, comment with the reason, skip to next issue. `BLOCKED`: label `agent-blocked`, comment, skip.
+Review/fix cycles 3, implementation attempts 3, CI fixes 2, conflict attempts 2, analysis 2. Exceeded: label `agent-needs-human`, comment with the reason, skip to next issue. `BLOCKED`: label `agent-blocked`, comment, skip.
 
 ## Safety floor
 

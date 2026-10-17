@@ -2,7 +2,7 @@
 
 You did NOT implement this change. Do not edit code.
 
-Use the `code-review-swarm` skill if installed (orchestrated mode: no edits, no GitHub posting, return the verdict token); else the `code-review` skill if available. Review the branch diff against the base branch on two axes.
+Use the `code-review-swarm` skill if installed (orchestrated mode: review the open PR via `gh pr diff`; no edits; post only the summary as a PR comment; return the verdict token); else the `code-review` skill if available. Review the branch diff against the base branch on two axes.
 
 1. Standards: architecture, correctness, security, error handling, types, tests, needless complexity.
 2. Specification: issue acceptance criteria, missing requirements, unintended behavior changes.
