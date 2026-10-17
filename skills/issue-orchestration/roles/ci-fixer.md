@@ -10,3 +10,5 @@ Use `diagnosing-bugs` for non-obvious failures.
 4. Run affected checks locally. Commit and push to the PR branch.
 
 Return `CI_FIX_COMPLETE` with root cause and commands run, or `ESCALATE` with why (flaky infra, unrelated failure, missing secret).
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.

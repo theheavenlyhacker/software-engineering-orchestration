@@ -19,3 +19,5 @@ Use installed engineering skills when available: implement, tdd, codebase-design
 
 End with `IMPLEMENTATION_COMPLETE` and: files changed, tests added/updated, commands run (with results), known limitations, what the reviewer should inspect.
 Use the Orca `ask` command for blocking questions; do not open a local prompt.
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.

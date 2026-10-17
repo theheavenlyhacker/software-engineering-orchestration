@@ -16,3 +16,5 @@ Use installed skills when available: tdd, diagnosing-bugs, codebase-design.
 
 Return `FIXES_COMPLETE` with, per finding: fixed / disputed (with reason), files changed, commands run with results, new head SHA.
 Return `ESCALATE` if a finding needs a design decision or the fix is out of scope.
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.

@@ -91,6 +91,7 @@ Rules baked into the loop:
 - Review always happens on the open PR, never before it exists.
 - Any new push (fix, CI fix, conflict resolution) invalidates earlier approval and triggers a fresh review.
 - Reviewer agent differs from implementer and fixer agents. Only the merger merges.
+- Fully autonomous: agents never ask for confirmation, and merging is unattended once gates pass. Unresolvable cases get a label and comment, then the loop moves on. Set `human-approval: required` in `.orca/policies/merge.md` to opt out of auto-merge.
 - Retry limits (review/fix 3, CI fix 2, conflict 2) end in `agent-needs-human`, never an endless loop.
 
 ### Inside the review swarm

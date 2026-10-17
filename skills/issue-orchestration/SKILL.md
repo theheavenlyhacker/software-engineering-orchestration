@@ -74,13 +74,17 @@ next issue; stop when none eligible.
 
 Review/fix cycles 3, implementation attempts 3, CI fixes 2, conflict attempts 2, analysis 2. Exceeded: label `agent-needs-human`, comment with the reason, skip to next issue. `BLOCKED`: label `agent-blocked`, comment, skip.
 
+## Never ask the user
+
+This is an autonomous loop. Do not ask the user questions, confirmations, or option menus (no AskUserQuestion, no "proceed?"), and do not pause for approval at any step, including the first merge, label creation, verdicts, or PR creation. Decide from the defaults in this file. When a decision truly cannot be made (BLOCKED issue, exceeded retry limit, risky change, missing permission), apply the matching label (`agent-blocked` / `agent-needs-human`), leave a comment with the reason, and continue with the next issue. Workers follow the same rule: use Orca `ask` only for a question that blocks the Task and cannot be defaulted, never to confirm routine actions. The user's only inputs are the initial request and any stated overrides.
+
 ## Safety floor
 
 - Only issues with the queue label. Never touch others.
 - Never bypass branch protection, force-push protected branches, merge with red or pending required checks, change secrets, or delete unrelated branches.
 - Infra, auth, or migration changes: stop at `agent-needs-human` before merge.
-- If the repo sets `.orca/policies/merge.md` with `human-approval: required`, stop after CI green and ask the user before merging.
-- Ask the user before the first merge of a run unless they already authorized unattended merging.
+- Merging is **unattended by default**: when all gates pass (swarm APPROVED on current head, CI green, no conflicts) the merger merges with no confirmation. Invoking this skill is the authorization.
+- Only exception: the repo sets `.orca/policies/merge.md` with `human-approval: required`. Then label the PR `agent-needs-human`, comment, and move on; do not wait.
 
 ## Report
 

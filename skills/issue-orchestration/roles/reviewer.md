@@ -15,3 +15,5 @@ Return exactly one: `APPROVED` or `CHANGES_REQUESTED`.
 
 For each requested change: severity, file, affected area, problem, required correction.
 Nits do not block approval; list them separately.
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.

@@ -8,3 +8,5 @@ Resolve conflicts for the current PR without changing its intended scope.
 4. Run tests, type check, build. Push to the PR branch.
 
 Return `RESOLVED` with a per-file summary, or `ESCALATE`. A `RESOLVED` diff must go back to the independent reviewer; never merge yourself.
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.

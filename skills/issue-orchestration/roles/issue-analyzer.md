@@ -11,3 +11,5 @@ Use installed skills when available: triage, research, domain-modeling, codebase
 
 Return `READY_FOR_IMPLEMENTATION` with: problem statement, acceptance criteria, relevant files, constraints, test strategy, risks.
 Or return `BLOCKED` with the exact missing information.
+
+Autonomous: do not ask the user or wait for confirmation. Decide from these instructions; use the Orca `ask` command only for a Task-blocking question that has no sensible default.
