@@ -83,11 +83,14 @@ The coordinator is small and deterministic: **Select, Dispatch, Wait, Evaluate, 
         |      v
         |  verify issue CLOSED, label agent-completed
         |      v
+        |  git pull base (fast-forward) before next worktree
+        |      v
         +-- next queued issue (stop when none)
 ```
 
 Rules baked into the loop:
 
+- After every merge the coordinator pulls the base branch (`git pull --ff-only`) before creating the next issue's worktree, so each new branch starts from the latest merged code.
 - Review always happens on the open PR, never before it exists.
 - Any new push (fix, CI fix, conflict resolution) invalidates earlier approval and triggers a fresh review.
 - Reviewer agent differs from implementer and fixer agents. Only the merger merges.

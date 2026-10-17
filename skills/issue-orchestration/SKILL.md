@@ -59,10 +59,11 @@ select -> label agent-in-progress -> [analyze] -> implement (local checks green)
   CI red   -> ci-fixer -> swarm review again -> CI              (max 2)
   conflict -> conflict-resolver -> swarm review -> CI           (max 2)
 verify `gh issue view N --json state` == CLOSED -> label agent-completed
-next issue; stop when none eligible.
+git pull base; next issue; stop when none eligible.
 ```
 
 - Select: `gh issue list --state open --label <queue-label> --json number,title,body,labels,url`, lowest number first. One issue at a time (no parallel unless user asks).
+- Always pull before branching: after each merge and before creating the next issue's worktree, update the base branch (`git fetch origin && git checkout <base> && git pull --ff-only` in the primary checkout), then create the worktree from that fresh base (`--base-branch <base>`). Never start a new issue from a stale base, or it will conflict with the PR just merged. If the pull is not a fast-forward, label `agent-needs-human` and stop the loop.
 - Worktree per issue, branch `agent/issue-<N>-<slug>`. Implementer, code-fixer, ci-fixer, and resolver share it; reviewer reads it.
 - Review happens on the PR, never before it exists. Pass the reviewer the PR number so it diffs with `gh pr diff`.
 - Dispatch with `worker-start --spec ... --worktree ... --agent ...`; wait with `check --wait --types worker_done,escalation,question`. Parse the verdict token from the worker_done summary. No verdict or unknown token counts as failed attempt.
