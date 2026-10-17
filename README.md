@@ -1,19 +1,19 @@
 # software-engineering-orchestration
 
-Agent skills that drive GitHub issues from `agent-ready` to merged PR using supervised [Orca](https://github.com/stablyai/orca) workers: implement, open PR, 4-lens swarm review, fix loop, CI, merge, next issue.
+Agent skills that drive GitHub issues from the queue label (default `ready-for-agent`) to merged PR using supervised [Orca](https://github.com/stablyai/orca) workers: implement, open PR, 4-lens swarm review, fix loop, CI, merge, next issue.
 
 Design background: [orca-ai-agent-orchestration.md](orca-ai-agent-orchestration.md).
 
 ## Prerequisites
 
-**This only works on a GitHub repository that has GitHub issues.** The coordinator's work queue is open issues labeled `agent-ready`. No issues, nothing to do: it reports `NO_ELIGIBLE_OPEN_ISSUES` and ends. Issues must be enabled on the repo (Settings > Features > Issues) and written clearly enough to implement (acceptance criteria help).
+**This only works on a GitHub repository that has GitHub issues.** The coordinator's work queue is open issues carrying the **queue label**: `ready-for-agent` by default (the canonical label from mattpocock's `triage`), resolved from `docs/agents/triage-labels.md` if your repo maps it differently, or any label you name ("use label X"). Your issues are never relabeled to fit. No issues, nothing to do: it reports `NO_ELIGIBLE_OPEN_ISSUES` and ends. Issues must be enabled on the repo (Settings > Features > Issues) and written clearly enough to implement (acceptance criteria help).
 
 Also required:
 
 - [Orca](https://github.com/stablyai/orca) with its `orchestration` skill.
 - `gh` installed and authenticated (`gh auth status`) with permission to label, open PRs, and merge.
 - [mattpocock/skills](https://github.com/mattpocock/skills) installed for each worker agent: `npx skills@latest add mattpocock/skills -a <agent>`, then run `/setup-matt-pocock-skills` once per repo.
-- Labels: `agent-ready`, `agent-in-progress`, `agent-review`, `agent-blocked`, `agent-needs-human`, `agent-completed` (the coordinator creates missing ones).
+- Labels: the queue label above plus state labels `agent-in-progress`, `agent-review`, `agent-blocked`, `agent-needs-human`, `agent-completed` (the coordinator creates missing ones).
 - Recommended: branch protection with required CI checks. The coordinator never bypasses it.
 
 ## Install
@@ -36,16 +36,16 @@ Manual: copy `skills/*` into `.claude/skills/` (repo) or `~/.claude/skills/` (gl
 
 ## Use
 
-Label the issues you want handled `agent-ready`, then ask your agent:
+Label the issues you want handled `ready-for-agent` (or your queue label), then ask your agent:
 
-> /issue-orchestration process the agent-ready issues
+> /issue-orchestration process the ready-for-agent issues
 
 ## How the loop works
 
 The coordinator is small and deterministic: **Select, Dispatch, Wait, Evaluate, Route, Merge, Repeat.** Orca decides who works and when; the installed engineering skills decide how.
 
 ```text
-                 GitHub issues labeled agent-ready
+                 GitHub issues with the queue label (ready-for-agent)
                               |
                               v
                    +--------------------+
@@ -83,7 +83,7 @@ The coordinator is small and deterministic: **Select, Dispatch, Wait, Evaluate, 
         |      v
         |  verify issue CLOSED, label agent-completed
         |      v
-        +-- next agent-ready issue (stop when none)
+        +-- next queued issue (stop when none)
 ```
 
 Rules baked into the loop:
@@ -107,7 +107,7 @@ open PR diff + linked issue + repo standards
 ### Issue label lifecycle
 
 ```text
-agent-ready -> agent-in-progress -> agent-review -> agent-completed
+ready-for-agent -> agent-in-progress -> agent-review -> agent-completed
                      |                   |
                      +--> agent-blocked  +--> agent-needs-human
 ```

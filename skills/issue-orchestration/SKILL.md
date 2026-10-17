@@ -1,6 +1,6 @@
 ---
 name: issue-orchestration
-description: Drive GitHub issues labeled agent-ready through implement, independent review, PR, CI, conflict resolution, and merge using supervised Orca workers, then repeat until the queue is empty. Use when the user asks to orchestrate, process, or burn down GitHub issues with multiple agents.
+description: Drive GitHub issues carrying the queue label (default ready-for-agent) through implement, independent review, PR, CI, conflict resolution, and merge using supervised Orca workers, then repeat until the queue is empty. Use when the user asks to orchestrate, process, or burn down GitHub issues with multiple agents.
 ---
 
 # Issue Orchestration
@@ -10,7 +10,7 @@ Coordinator loop. Orca decides WHO works and WHEN. Installed engineering skills 
 ## Prerequisites
 
 1. Load the `orchestration` skill (Orca) first and follow its CLI-resolution and supervised-loop rules. Do not duplicate them here. Never substitute a non-Orca subagent tool.
-2. `gh auth status` passes. Labels exist: `agent-ready`, `agent-in-progress`, `agent-review`, `agent-blocked`, `agent-needs-human`, `agent-completed` (create missing with `gh label create`).
+2. `gh auth status` passes. Resolve the **queue label** once per run: the user's explicit choice, else the `ready-for-agent` mapping in `docs/agents/triage-labels.md` (written by `/setup-matt-pocock-skills`; the real string may differ from the canonical name), else `ready-for-agent` if that label exists in the repo, else `agent-ready`. Never relabel the user's issues to fit. Ensure these state labels exist (create missing with `gh label create`): `agent-in-progress`, `agent-review`, `agent-blocked`, `agent-needs-human`, `agent-completed` 
 3. Engineering skills from https://github.com/mattpocock/skills are installed for every worker agent (`npx skills@latest add mattpocock/skills -a <agent>`; Codex/Claude plugins also work, pick one method per agent). Run `/setup-matt-pocock-skills` once per repo (GitHub tracker, labels, docs location). Roles use: implement, tdd, codebase-design, diagnosing-bugs, code-review, pr, triage, research, domain-modeling. If one is missing, the worker proceeds without it and says so in its report.
 
 ## Roles
@@ -62,7 +62,7 @@ verify `gh issue view N --json state` == CLOSED -> label agent-completed
 next issue; stop when none eligible.
 ```
 
-- Select: `gh issue list --state open --label agent-ready --json number,title,body,labels,url`, lowest number first. One issue at a time (no parallel unless user asks).
+- Select: `gh issue list --state open --label <queue-label> --json number,title,body,labels,url`, lowest number first. One issue at a time (no parallel unless user asks).
 - Worktree per issue, branch `agent/issue-<N>-<slug>`. Implementer, code-fixer, ci-fixer, and resolver share it; reviewer reads it.
 - Review happens on the PR, never before it exists. Pass the reviewer the PR number so it diffs with `gh pr diff`.
 - Dispatch with `worker-start --spec ... --worktree ... --agent ...`; wait with `check --wait --types worker_done,escalation,question`. Parse the verdict token from the worker_done summary. No verdict or unknown token counts as failed attempt.
@@ -76,7 +76,7 @@ Review/fix cycles 3, implementation attempts 3, CI fixes 2, conflict attempts 2,
 
 ## Safety floor
 
-- Only `agent-ready` issues. Never touch others.
+- Only issues with the queue label. Never touch others.
 - Never bypass branch protection, force-push protected branches, merge with red or pending required checks, change secrets, or delete unrelated branches.
 - Infra, auth, or migration changes: stop at `agent-needs-human` before merge.
 - If the repo sets `.orca/policies/merge.md` with `human-approval: required`, stop after CI green and ask the user before merging.
