@@ -28,6 +28,11 @@ Requires Orca, `gh` (authenticated), Orca's `orchestration` skill, and [mattpoco
 
 > /issue-orchestration process the agent-ready issues
 
+## Skills
+
+- `issue-orchestration`: the issue-to-merge coordinator.
+- `code-review-swarm`: 4-lens parallel reviewer (standards, spec, security, QA). Also usable standalone on any PR or diff; it is the default reviewer step.
+
 ## Agents
 
 Workers run as `codex`, `claude`, or `opencode` via Orca's `--agent`. Defaults: codex implements, claude reviews. Tell the coordinator to override per role (e.g. "use opencode as reviewer"). Reviewer must differ from implementer.
