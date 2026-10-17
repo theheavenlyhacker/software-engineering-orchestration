@@ -31,7 +31,19 @@ Workers do not see this skill directory: **inline the role file text into every 
 
 Reviewer agent MUST differ from the implementer's and code-fixer's agent. Implementer and code-fixer never approve or merge. Only the merger merges, and only after the coordinator confirms all gates.
 Start with MVP: implementer, merger, reviewer, code-fixer. Add optional roles only when the user asks or the failure mode appears.
-Agents are defaults; honor user overrides. Supported `--agent` values: `codex`, `claude`, `opencode` (or any other agent Orca can launch). Use `opencode` for any role the user assigns it; the reviewer-differs rule still applies.
+Agents are defaults; honor user overrides. Supported `--agent` values: `codex`, `claude`, `opencode`, `antigravity` (or any other agent id Orca lists). The reviewer-differs rule still applies to every assignment.
+
+### Token optimization
+
+Spend premium tokens only where judgment is hard. Route by role weight, using `--agent` and, where the agent supports it, `--model` / `--effort` (check `worker-start --help`; Antigravity takes `--model`; OpenCode picks models from its own config):
+
+| Weight | Roles | Route |
+|---|---|---|
+| Light (mechanical) | pr-opener, merger, issue-analyzer, ci-fixer log triage | cheapest capable agent/model: `antigravity` fast model, or `opencode` with a small model |
+| Medium | reviewer swarm lenses | `antigravity` fast tier by default; `--deep` only for risky diffs (auth, data, migrations) |
+| Heavy | implementer, code-fixer, conflict-resolver | strongest coding agent, e.g. `codex` or `claude` |
+
+Also: one worker per task (no idle terminals; release settled workers), put only the needed context in each `--spec` (issue body, findings, role text, not the whole history), and stop at retry limits instead of looping. Never downgrade the reviewer to the same agent as the implementer to save tokens.
 
 ## Loop
 

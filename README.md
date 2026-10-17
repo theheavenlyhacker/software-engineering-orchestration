@@ -119,7 +119,19 @@ agent-ready -> agent-in-progress -> agent-review -> agent-completed
 
 ## Agents
 
-Workers run as `codex`, `claude`, or `opencode` via Orca's `--agent`. Defaults: codex implements and fixes, claude reviews. Tell the coordinator to override per role (e.g. "use opencode as reviewer"). Reviewer must differ from implementer.
+Workers run as `codex`, `claude`, `opencode`, or `antigravity` via Orca's `--agent` (any agent id Orca lists works). Defaults: codex implements and fixes, claude reviews. Tell the coordinator to override per role (e.g. "use antigravity as reviewer"). Reviewer must differ from implementer.
+
+### Token optimization
+
+Premium tokens go to hard judgment; mechanical work goes to cheap agents.
+
+| Weight | Roles | Route |
+|---|---|---|
+| Light | pr-opener, merger, issue-analyzer | `antigravity` fast model or `opencode` small model |
+| Medium | review swarm lenses | `antigravity` fast tier; `--deep` only for risky diffs |
+| Heavy | implementer, code-fixer, conflict-resolver | `codex` or `claude` |
+
+Example: "use antigravity for reviews and PR/merge, codex for implementation and fixes."
 
 ## Customize
 
