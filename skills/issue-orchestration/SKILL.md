@@ -68,6 +68,7 @@ next issue; stop when none eligible.
 - Dispatch with `worker-start --spec ... --worktree ... --agent ...`; wait with `check --wait --types worker_done,escalation,question`. Parse the verdict token from the worker_done summary. No verdict or unknown token counts as failed attempt.
 - The merge gate is the latest review verdict on the PR's current head SHA (`gh pr view N --json headRefOid`). Any push (fix, CI fix, conflict resolution) invalidates earlier approval; re-run the swarm. Never merge on a stale approval.
 - The reviewer posts its swarm summary as a PR comment. The coordinator holds the verdict and routes; do not trust a verdict that is not in the worker_done summary.
+- A worker blocked on an agent-side prompt (e.g. Codex hooks review) is not progressing. After one empty wait with the terminal showing the prompt, retry the Task once with another agent (`--retry-of`), following the orchestration skill's recovery rules (positive proof the first worker stopped); if that also fails, label `agent-needs-human` and move on.
 - Release each settled worker per the orchestration skill's completion accounting.
 
 ## Limits

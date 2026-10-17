@@ -138,6 +138,7 @@ Example: "use antigravity for reviews and PR/merge, codex for implementation and
 
 - `Unknown flag --app` from `orca-ide` (Arch/Linux package): `/usr/bin/orca-ide` is an Electron launcher that injects `--app`. Use the `orca` shim in `~/.config/orca/linux-orca-cli-shim/orca` (on PATH inside Orca terminals) or `/usr/lib/orca-ide/bin/orca-ide`. Verify with `orca status --json`.
 - Bare `orca` starting speech: that is the GNOME screen reader (`/usr/bin/orca`), not Orca ADE. Use the shim path instead.
+- Codex asks to review hooks on every spawn even after you trusted them: Orca launches Codex with its own managed home, so trust saved in `~/.codex/config.toml` does not carry over. If you control your hook sources, set Orca's Codex command override (Settings > Agents > codex command) to `codex --dangerously-bypass-hook-trust`. This skips only hook trust, not approvals or the sandbox, but it applies to every hook, so only use it with hooks you vet. Until then a blocked worker can be retried with another agent (`worker-start --task <id> --agent claude --retry-of <dispatch_id>`).
 
 ## Customize
 
