@@ -133,6 +133,11 @@ Premium tokens go to hard judgment; mechanical work goes to cheap agents.
 
 Example: "use antigravity for reviews and PR/merge, codex for implementation and fixes."
 
+## Troubleshooting
+
+- `Unknown flag --app` from `orca-ide` (Arch/Linux package): `/usr/bin/orca-ide` is an Electron launcher that injects `--app`. Use the `orca` shim in `~/.config/orca/linux-orca-cli-shim/orca` (on PATH inside Orca terminals) or `/usr/lib/orca-ide/bin/orca-ide`. Verify with `orca status --json`.
+- Bare `orca` starting speech: that is the GNOME screen reader (`/usr/bin/orca`), not Orca ADE. Use the shim path instead.
+
 ## Customize
 
 Override any role per repository with `.orca/roles/<role>.md` (implementer, reviewer, code-fixer, merger, issue-analyzer, ci-fixer, conflict-resolver). Defaults live in `skills/issue-orchestration/roles/`.
