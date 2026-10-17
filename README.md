@@ -28,6 +28,10 @@ Requires Orca, `gh` (authenticated), Orca's `orchestration` skill, and [mattpoco
 
 > /issue-orchestration process the agent-ready issues
 
+## Agents
+
+Workers run as `codex`, `claude`, or `opencode` via Orca's `--agent`. Defaults: codex implements, claude reviews. Tell the coordinator to override per role (e.g. "use opencode as reviewer"). Reviewer must differ from implementer.
+
 ## Customize
 
 Override any role per repository with `.orca/roles/<role>.md` (implementer, reviewer, issue-analyzer, ci-fixer, conflict-resolver, merger). Defaults live in `skills/issue-orchestration/roles/`.

@@ -29,7 +29,7 @@ Workers do not see this skill directory: **inline the role file text into every 
 
 Reviewer agent MUST differ from the implementer's agent. Implementer never approves or merges.
 Start with MVP: implementer, reviewer, merger. Add optional roles only when the user asks or the failure mode appears.
-Agents are defaults; honor user overrides.
+Agents are defaults; honor user overrides. Supported `--agent` values: `codex`, `claude`, `opencode` (or any other agent Orca can launch). Use `opencode` for any role the user assigns it, e.g. a cheaper implementer or a third-party reviewer; the implementer/reviewer difference rule still applies.
 
 ## Loop
 
