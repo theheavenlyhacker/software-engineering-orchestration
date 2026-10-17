@@ -24,7 +24,7 @@ Manual: copy `skills/issue-orchestration/` into `.claude/skills/` (repo) or `~/.
 
 ## Use
 
-Requires Orca, `gh` (authenticated), and Orca's `orchestration` skill. Label issues `agent-ready`, then ask your agent:
+Requires Orca, `gh` (authenticated), Orca's `orchestration` skill, and [mattpocock/skills](https://github.com/mattpocock/skills) installed for each worker agent (`npx skills@latest add mattpocock/skills -a <agent>`, then run `/setup-matt-pocock-skills` once per repo). Label issues `agent-ready`, then ask your agent:
 
 > /issue-orchestration process the agent-ready issues
 

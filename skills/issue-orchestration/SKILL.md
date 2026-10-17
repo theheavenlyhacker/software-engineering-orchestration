@@ -11,7 +11,7 @@ Coordinator loop. Orca decides WHO works and WHEN. Installed engineering skills 
 
 1. Load the `orchestration` skill (Orca) first and follow its CLI-resolution and supervised-loop rules. Do not duplicate them here. Never substitute a non-Orca subagent tool.
 2. `gh auth status` passes. Labels exist: `agent-ready`, `agent-in-progress`, `agent-review`, `agent-blocked`, `agent-needs-human`, `agent-completed` (create missing with `gh label create`).
-3. Engineering skills are installed for the worker agents. If a role names a skill that is missing, the worker proceeds without it and says so in its report.
+3. Engineering skills from https://github.com/mattpocock/skills are installed for every worker agent (`npx skills@latest add mattpocock/skills -a <agent>`; Codex/Claude plugins also work, pick one method per agent). Run `/setup-matt-pocock-skills` once per repo (GitHub tracker, labels, docs location). Roles use: implement, tdd, codebase-design, diagnosing-bugs, code-review, pr, triage, research, domain-modeling. If one is missing, the worker proceeds without it and says so in its report.
 
 ## Roles
 
